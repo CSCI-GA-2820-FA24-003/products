@@ -25,6 +25,7 @@ from unittest import TestCase
 from wsgi import app
 from service.models import Products, DataValidationError, db
 from .factories import ProductsFactory
+from decimal import Decimal
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
@@ -75,6 +76,7 @@ class TestProducts(TestCase):
         data = Products.find(products.id)
         self.assertEqual(data.name, products.name)
         self.assertEqual(data.description, products.description)
-        self.assertEqual(data.price, products.price)
+        # Convert the price to Decimal and compare niv
+        self.assertEqual(data.price, Decimal(products.price))
 
     # Todo: Add your test cases here...

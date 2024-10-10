@@ -25,10 +25,13 @@ from unittest import TestCase
 from wsgi import app
 from service.common import status
 from service.models import db, Products
+from .factories import ProductsFactory
+from decimal import Decimal
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
 )
+BASE_URL = "/products"
 
 
 ######################################################################
@@ -73,3 +76,27 @@ class TestYourResourceService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     # Todo: Add your test cases here...
+    def test_create_products(self):
+        """It should Create a new Products"""
+        test_products = ProductsFactory()
+        logging.debug("Test Products: %s", test_products.serialize())
+        response = self.client.post(BASE_URL, json=test_products.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Make sure location header is set
+        location = response.headers.get("Location", None)
+        self.assertIsNotNone(location)
+
+        # Check the data is correct
+        new_products = response.get_json()
+        self.assertEqual(new_products["name"], test_products.name)
+        self.assertEqual(new_products["description"], test_products.description)
+        self.assertEqual(Decimal(new_products["price"]), Decimal(test_products.price))
+
+        # Check that the location header was correct
+        response = self.client.get(location)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        new_products = response.get_json()
+        self.assertEqual(new_products["name"], test_products.name)
+        self.assertEqual(new_products["description"], test_products.description)
+        self.assertEqual(Decimal(new_products["price"]), Decimal(test_products.price))
