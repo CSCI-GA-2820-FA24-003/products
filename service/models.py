@@ -6,6 +6,9 @@ All of the models are stored in this module
 
 import logging
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Numeric
+from sqlalchemy import Column, String, Integer
+from decimal import Decimal
 
 logger = logging.getLogger("flask.app")
 
@@ -28,7 +31,7 @@ class Products(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63))
     description = db.Column(db.String(256))
-    price = db.Column(db.String(24))
+    price = db.Column(Numeric(10, 2))  # 10 digits total, with 2 decimal places
 
     # Todo: Place the rest of your schema here...
 
@@ -78,7 +81,9 @@ class Products(db.Model):
             "id": self.id,
             "name": self.name,
             "description": self.description,
-            "price": self.price,
+            "price": str(
+                self.price
+            ),  # Convert Decimal to string for JSON serialization
         }
 
     def deserialize(self, data):
@@ -91,7 +96,7 @@ class Products(db.Model):
         try:
             self.name = data["name"]
             self.description = data["description"]
-            self.price = data["price"]
+            self.price = Decimal(data["price"])
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0]) from error
         except KeyError as error:

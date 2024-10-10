@@ -1,14 +1,14 @@
 """
 Global Configuration for Application
 """
+
 import os
 import logging
 
 # Get configuration from environment
 DATABASE_URI = os.getenv(
-    "DATABASE_URI",
-    "postgresql+psycopg://postgres:postgres@localhost:5432/postgres"
-)
+    "DATABASE_URI", "postgresql+psycopg2://postgres:postgres@localhost:5432/postgres"
+)  # changed psycopg to psycopg2
 
 # Configure SQLAlchemy
 SQLALCHEMY_DATABASE_URI = DATABASE_URI
