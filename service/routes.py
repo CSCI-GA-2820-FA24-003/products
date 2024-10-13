@@ -124,3 +124,25 @@ def get_products(products_id):
     app.logger.info(f"Returning product: {product.name}")
 
     return jsonify(product.serialize()), status.HTTP_200_OK
+
+
+######################################################################
+# UPDATE AN EXISTING PRODUCT
+######################################################################
+@app.route("/products/<int:products_id>", methods=["PUT"])
+def update_products(products_id):
+    """
+    Update a Product
+    """
+    app.logger.info(f"Request to update Product with id: {products_id}")
+    product = Products.find(products_id)
+    # If product not found, abort with a 404 error
+    if not product:
+        app.logger.error(f"Product with id: {products_id} not found.")
+        abort(status.HTTP_404_NOT_FOUND, f"Product with id {products_id} not found.")
+    # Deserialize the incoming data and update the fields
+    product.deserialize(request.get_json())
+    # Save the updated product to the database
+    product.update()
+    app.logger.info(f"Product with id: {products_id} updated.")
+    return jsonify(product.serialize()), status.HTTP_200_OK

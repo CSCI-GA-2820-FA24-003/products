@@ -100,3 +100,57 @@ class TestYourResourceService(TestCase):
         self.assertEqual(new_products["name"], test_products.name)
         self.assertEqual(new_products["description"], test_products.description)
         self.assertEqual(Decimal(new_products["price"]), Decimal(test_products.price))
+
+    def test_update_products(self):
+        """It should Update an existing Product"""
+        test_products = ProductsFactory()
+        response = self.client.post(BASE_URL, json=test_products.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # get new product id
+        new_products = response.get_json()
+        product_id = new_products["id"]
+        updated_data = {
+            "name": "Updated Product Name",
+            "description": "Updated Product Description",
+            "price": "250.00",
+        }
+
+        # Check the product is updated
+        response = self.client.put(f"{BASE_URL}/{product_id}", json=updated_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        updated_product = response.get_json()
+        self.assertEqual(updated_product["name"], updated_data["name"])
+        self.assertEqual(updated_product["description"], updated_data["description"])
+        self.assertEqual(
+            Decimal(updated_product["price"]), Decimal(updated_data["price"])
+        )
+
+        response = self.client.get(f"{BASE_URL}/{product_id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        updated_product = response.get_json()
+        self.assertEqual(updated_product["name"], updated_data["name"])
+        self.assertEqual(updated_product["description"], updated_data["description"])
+        self.assertEqual(
+            Decimal(updated_product["price"]), Decimal(updated_data["price"])
+        )
+
+    def test_update_nonexistent_product(self):
+        """It should return 404 when trying to update a non-existent Product"""
+        # create non_exist product
+        non_existent_product_id = 9999999
+
+        updated_data = {
+            "name": "Non-existent Product",
+            "description": "This product does not exist",
+            "price": "100.00",
+        }
+
+        response = self.client.put(
+            f"{BASE_URL}/{non_existent_product_id}", json=updated_data
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        error_message = response.get_json()
+        expected_message = f"Product with id {non_existent_product_id} not found."
+        self.assertIn(expected_message, error_message["message"])
