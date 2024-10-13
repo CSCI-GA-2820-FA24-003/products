@@ -154,3 +154,35 @@ class TestYourResourceService(TestCase):
         error_message = response.get_json()
         expected_message = f"Product with id {non_existent_product_id} not found."
         self.assertIn(expected_message, error_message["message"])
+
+    # ----------------------------------------------------------
+    # TEST READ Siwen
+    # ----------------------------------------------------------
+
+    def test_get_product_by_id(self):
+        """It should Get a single Product by ID"""
+        # Creating a product
+        test_products = ProductsFactory()
+        response = self.client.post(BASE_URL, json=test_products.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        data = response.get_json()
+        product_id = data["id"]
+        response = self.client.get(f"{BASE_URL}/{product_id}")
+
+        data = response.get_json()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["name"], test_products.name)
+        self.assertEqual(data["description"], test_products.description)
+        self.assertEqual(Decimal(data["price"]), Decimal(test_products.price))
+
+    def test_get_product_by_id_not_found(self):
+        """It should not Get a single Product by id thats not found"""
+        non_existent_product_id = 9999999
+        response = self.client.get(f"{BASE_URL}/{non_existent_product_id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        logging.debug("Response data = %s", data)
+        self.assertIn(
+            "404 Not Found: Product with id 9999999 not found", data["message"]
+        )
