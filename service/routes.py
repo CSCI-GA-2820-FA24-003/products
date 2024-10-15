@@ -196,4 +196,4 @@ def delete_products(products_id):
 
     app.logger.info("Product with ID: %d deleted.", product.id)
 
-    return '', status.HTTP_204_NO_CONTENT
+    return '', status.HTTP_200_OK

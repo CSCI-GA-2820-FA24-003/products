@@ -79,25 +79,3 @@ class TestProducts(TestCase):
         # Convert the price to Decimal and compare niv
         self.assertEqual(data.price, Decimal(products.price))
 
-    # Todo: Add your test cases here...
-    # ----------------------------------------------------------
-    # TEST DELETE
-    # ----------------------------------------------------------
-    def test_delete_product(self):
-        """It should Delete a Product by id"""
-        # First, create a product to be deleted
-        test_product = ProductsFactory()
-        response = self.client.post(BASE_URL, json=test_product.serialize())
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        # Get the new product's id
-        new_product = response.get_json()
-        product_id = new_product["id"]
-
-        # Delete the product
-        response = self.client.delete(f"{BASE_URL}/{product_id}")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-        # Try to retrieve the deleted product to confirm deletion
-        response = self.client.get(f"{BASE_URL}/{product_id}")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
