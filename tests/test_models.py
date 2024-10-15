@@ -79,4 +79,3 @@ class TestProducts(TestCase):
         # Convert the price to Decimal and compare niv
         self.assertEqual(data.price, Decimal(products.price))
 
-    # Todo: Add your test cases here...
