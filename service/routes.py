@@ -173,3 +173,27 @@ def get_products_by_name(products_name):
     results = [product.serialize() for product in products]
 
     return jsonify(results), status.HTTP_200_OK
+######################################################################
+# DELETE A PRODUCT BY ID
+######################################################################
+@app.route("/products/<int:products_id>", methods=["DELETE"])
+def delete_products(products_id):
+    """
+    Delete a single Product
+    This endpoint will delete a Product based on its ID
+    """
+    app.logger.info(f"Request to delete Product with id: {products_id}")
+
+    # Find the product by its ID
+    product = Products.find(products_id)
+
+    # If product not found, abort with a 404 error
+    if not product:
+        app.logger.error(f"Product with id: {products_id} not found.")
+        abort(status.HTTP_404_NOT_FOUND, f"Product with id {products_id} not found.")
+        
+    product.delete()
+
+    app.logger.info("Product with ID: %d deleted.", product.id)
+
+    return '', status.HTTP_204_NO_CONTENT
