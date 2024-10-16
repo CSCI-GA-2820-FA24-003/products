@@ -173,6 +173,8 @@ def get_products_by_name(products_name):
     results = [product.serialize() for product in products]
 
     return jsonify(results), status.HTTP_200_OK
+
+
 ######################################################################
 # DELETE A PRODUCT BY ID
 ######################################################################
@@ -191,9 +193,25 @@ def delete_products(products_id):
     if not product:
         app.logger.error(f"Product with id: {products_id} not found.")
         abort(status.HTTP_404_NOT_FOUND, f"Product with id {products_id} not found.")
-        
+
     product.delete()
 
     app.logger.info("Product with ID: %d deleted.", product.id)
 
-    return '', status.HTTP_200_OK
+    return "", status.HTTP_200_OK
+
+
+######################################################################
+# LIST ALL PETS
+######################################################################
+@app.route("/products", methods=["GET"])
+def list_products():
+    """Returns all of the Products"""
+    app.logger.info("Request for product list")
+
+    products = []
+    products = Products.all()
+
+    results = [product.serialize() for product in products]
+    app.logger.info("Returning %d products", len(results))
+    return jsonify(results), status.HTTP_200_OK
