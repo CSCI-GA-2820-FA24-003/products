@@ -21,12 +21,12 @@ Test cases for Pet Model
 # pylint: disable=duplicate-code
 import os
 import logging
+from decimal import Decimal
 from unittest import TestCase
 from unittest.mock import patch
 from wsgi import app
 from service.models import Products, DataValidationError, db
 from .factories import ProductsFactory
-from decimal import Decimal
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
