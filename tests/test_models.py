@@ -22,6 +22,7 @@ Test cases for Pet Model
 import os
 import logging
 from unittest import TestCase
+from unittest.mock import patch
 from wsgi import app
 from service.models import Products, DataValidationError, db
 from .factories import ProductsFactory
@@ -79,3 +80,69 @@ class TestProducts(TestCase):
         # Convert the price to Decimal and compare niv
         self.assertEqual(data.price, Decimal(products.price))
 
+    def test_create_products_with_invalid_name(self):
+        """It should raise DataValidationError when the name exceeds the maximum length"""
+        products = ProductsFactory()
+        products.name = (
+            "x" * 100
+        )  # Create a product is not valid, which name exceeds the 63-character limit
+        with self.assertRaises(DataValidationError) as context:
+            products.create()
+        self.assertIn("value too long", str(context.exception))
+
+    def test_update_products_with_invalid_data(self):
+        """It should raise DataValidationError when updating with invalid data"""
+        # Create a valid product first
+        products = ProductsFactory()
+        products.create()
+        self.assertIsNotNone(products.id)
+
+        # Modify the product with invalid data
+        products.name = "x" * 100  # Exceeds the 63-character limit
+
+        with self.assertRaises(DataValidationError) as context:
+            products.update()
+        self.assertIn("value too long", str(context.exception))
+
+    def test_delete_products_with_exception_handling(self):
+        """It should handle exceptions during delete properly"""
+        products = ProductsFactory()
+        products.create()
+        self.assertIsNotNone(products.id)
+
+        # Mock db.session.commit() to raise an exception during delete
+        with patch(
+            "service.models.db.session.commit",
+            side_effect=Exception("Mock commit exception during delete"),
+        ), patch("service.models.db.session.rollback") as mock_rollback, patch(
+            "service.models.logger.error"
+        ) as mock_logger_error:
+            with self.assertRaises(DataValidationError) as context:
+                products.delete()
+            # Verify that rollback was called
+            mock_rollback.assert_called_once()
+            # Verify that logger.error was called with the correct message
+            mock_logger_error.assert_called_once_with(
+                "Error deleting record: %s", products
+            )
+            # Verify that the exception message contains the original exception message
+            self.assertIn("Mock commit exception during delete", str(context.exception))
+
+    def test_deserialize_with_invalid_type(self):
+        """It should raise DataValidationError when data is not a dictionary"""
+        products = Products()
+        # Pass None as data
+        with self.assertRaises(DataValidationError) as context:
+            products.deserialize(None)
+        self.assertIn(
+            "Invalid Products: body of request contained bad or no data",
+            str(context.exception),
+        )
+
+        # Pass an integer as data
+        with self.assertRaises(DataValidationError) as context:
+            products.deserialize(123)
+        self.assertIn(
+            "Invalid Products: body of request contained bad or no data",
+            str(context.exception),
+        )
