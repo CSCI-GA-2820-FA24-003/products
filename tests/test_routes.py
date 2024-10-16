@@ -283,6 +283,22 @@ class TestYourResourceService(TestCase):
         response = self.client.get(f"{BASE_URL}/{product_id}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+        # Product not found test <niv>
+
+    def test_delete_product_not_found(self):
+        """It should return 404 when trying to delete a Product that does not exist"""
+        # Use a non-existent product id
+        non_existent_product_id = 9999999
+
+        # Attempt to delete the non-existent product
+        response = self.client.delete(f"{BASE_URL}/{non_existent_product_id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Confirm the response contains the correct error message
+        error_message = response.get_json()
+        expected_message = f"Product with id {non_existent_product_id} not found."
+        self.assertIn(expected_message, error_message["message"])
+
     # ----------------------------------------------------------
     # TEST LIST
     # ----------------------------------------------------------
