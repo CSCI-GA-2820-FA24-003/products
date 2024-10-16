@@ -94,7 +94,6 @@ class TestYourResourceService(TestCase):
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    # Todo: Add your test cases here...
     def test_create_products(self):
         """It should Create a new Products"""
         test_products = ProductsFactory()
@@ -175,7 +174,37 @@ class TestYourResourceService(TestCase):
         self.assertIn(expected_message, error_message["message"])
 
     # ----------------------------------------------------------
-    # TEST READ Siwen
+    # Error-Handler tests
+    # ----------------------------------------------------------
+    def test_400_bad_request(self):
+        """It should return 400 Bad Request"""
+        # Simulate bad request by making an invalid POST request
+        response = self.client.post(
+            BASE_URL, json={}
+        )  # Empty data simulates a bad request
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data = response.get_json()
+        self.assertEqual(data["error"], "Bad Request")
+
+    def test_405_method_not_allowed(self):
+        """It should return 405 Method Not Allowed"""
+        # Simulate method not allowed by making a PUT request to an invalid endpoint
+        response = self.client.put(BASE_URL)  # PUT method not allowed on the base URL
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        data = response.get_json()
+        self.assertEqual(data["error"], "Method not Allowed")
+
+    def test_415_unsupported_media_type(self):
+        """It should return 415 Unsupported Media Type"""
+        # Simulate unsupported media type by sending XML instead of JSON
+        headers = {"Content-Type": "application/xml"}  # Unsupported media type
+        response = self.client.post(BASE_URL, data="<xml></xml>", headers=headers)
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        data = response.get_json()
+        self.assertEqual(data["error"], "Unsupported media type")
+
+    # ----------------------------------------------------------
+    # TEST READ
     # ----------------------------------------------------------
 
     def test_get_product_by_id(self):
@@ -232,7 +261,6 @@ class TestYourResourceService(TestCase):
             "404 Not Found: Product with name SiwenTao not found", data["message"]
         )
 
-    # Todo: Add your test cases here...
     # ----------------------------------------------------------
     # TEST DELETE
     # ----------------------------------------------------------
