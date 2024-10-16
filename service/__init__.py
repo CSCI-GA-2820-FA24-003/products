@@ -18,7 +18,7 @@ Package for the application models and service routes
 This module creates and configures the Flask app and sets up the logging
 and SQL database
 """
-from flask_migrate import Migrate  # Added this import <niv>
+# from flask_migrate import Migrate  # Added this import <niv>
 import sys
 from flask import Flask
 from service import config
@@ -39,7 +39,7 @@ def create_app():
     from service.models import db
 
     db.init_app(app)
-    migrate = Migrate(app, db)  # Added this line to enable migrations <niv>
+    # migrate = Migrate(app, db)  # Added this line to enable migrations <niv>
 
     with app.app_context():
         # Dependencies require we import the routes AFTER the Flask app is created
