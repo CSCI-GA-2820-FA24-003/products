@@ -33,10 +33,22 @@ from service.common import status  # HTTP Status Codes
 @app.route("/")
 def index():
     """Root URL response"""
-    return (
-        "Reminder: return some useful information in json format about the service here",
-        status.HTTP_200_OK,
-    )
+    # Define the service information
+    service_info = {
+        "service_name": "Product API Service",
+        "version": "1.0.0",
+        "endpoints": {
+            "POST /products": "Create a new product",
+            "GET /products/<id>": "Retrieve a product by ID",
+            "GET /products/name/<string:products_name>": "Retrieve a product by name",
+            "PUT /products/<id>": "Update a product by ID",
+            "DELETE /products/<id>": "Delete a product by ID",
+            "GET /products": "List all products",
+        },
+    }
+
+    # Return the service information as JSON
+    return jsonify(service_info), status.HTTP_200_OK
 
 
 ######################################################################
@@ -202,7 +214,7 @@ def delete_products(products_id):
 
 
 ######################################################################
-# LIST ALL PETS
+# LIST ALL PRODUCTS
 ######################################################################
 @app.route("/products", methods=["GET"])
 def list_products():
