@@ -1,4 +1,4 @@
-# NYU DevOps Project Template
+# Products service
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
@@ -7,7 +7,65 @@ This is a skeleton you can use to start your projects
 
 ## Overview
 
-This project template contains starter code for your class project. The `/service` folder contains your `models.py` file for your model and a `routes.py` file for your service. The `/tests` folder has test case starter code for testing the model and the service separately. All you need to do is add your functionality. You can use the [lab-flask-tdd](https://github.com/nyu-devops/lab-flask-tdd) for code examples to copy from.
+The Products service represents the store items that customers can buy. It provides a RESTful API for creating, retrieving, updating, and deleting products in a store's catalog. The service is built with Flask and uses PostgreSQL as the database to store product information.
+
+### How to Run It
+
+
+#### 1. Using Remote Development Container (Recommended)
+
+ **VS Code with Docker Plugin**: Use Visual Studio Code along with the Docker extension. The development environment can be set up by pulling the appropriate image via the scripts located in the `.devcontainer` folder.  
+ **Run the Flask development server**:  
+ Start the server using Flask's built-in development server:
+
+   ```bash
+   flask run
+   ```
+
+#### 2. Running Locally with Flask
+
+If you prefer to run the service locally, you need to install the required dependencies and start the application manually. Below are the main dependencies and instructions for setting it up:
+
+##### Steps to Run Locally:
+
+1. **Install the dependencies**:
+   Ensure you have Python and pip installed, then run:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Set up environment variables**:
+   Create a `.env` file to store environment-specific variables such as database credentials. Example:
+
+   ```bash
+   FLASK_APP=service:app
+   FLASK_ENV=development
+   DATABASE_URL=postgresql://<username>:<password>@localhost/<dbname>
+   ```
+
+3. **Run the Flask development server**:
+   Start the server using Flask's built-in development server:
+
+   ```bash
+   flask run
+   ```
+
+## How to Test It
+
+We use standard **PyUnit** syntax for writing and running tests. To execute the tests, follow the instructions in our `Makefile`. Simply run the following command in your terminal:
+
+```bash
+make test
+```
+
+This will automatically run the tests and generate a coverage report.
+
+## Test Coverage
+
+**Required Test Coverage:** 95%  
+**Total Coverage (as of 16/10/2024):** 95.91%
+
 
 ## Database Schema
 
