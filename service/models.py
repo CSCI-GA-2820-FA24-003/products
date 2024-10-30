@@ -5,10 +5,12 @@ All of the models are stored in this module
 """
 
 import logging
+from decimal import Decimal
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Numeric
-from sqlalchemy import Column, String, Integer
-from decimal import Decimal
+
+# from sqlalchemy import Column, String, Integer
+
 
 logger = logging.getLogger("flask.app")
 
@@ -33,7 +35,7 @@ class Products(db.Model):
     description = db.Column(db.String(256))
     price = db.Column(Numeric(10, 2))  # 10 digits total, with 2 decimal places
 
-    # Todo: Place the rest of your schema here...
+    # Place the rest of your schema here...
 
     def __repr__(self):
         return f"<Products {self.name} id=[{self.id}]>"
