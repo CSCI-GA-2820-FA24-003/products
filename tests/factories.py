@@ -3,7 +3,8 @@ Test Factory to make fake objects for testing
 """
 
 import factory
-from decimal import Decimal
+
+# from decimal import Decimal
 from service.models import Products
 
 
@@ -20,4 +21,4 @@ class ProductsFactory(factory.Factory):
     description = factory.Faker("text")
     price = factory.Faker("pydecimal", left_digits=2, right_digits=2, positive=True)
 
-    # Todo: Add your other attributes here...
+    # Add your other attributes here...
