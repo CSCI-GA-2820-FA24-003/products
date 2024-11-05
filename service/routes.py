@@ -202,14 +202,14 @@ def delete_products(products_id):
 
     # If product not found, abort with a 404 error
     if not product:
-        app.logger.error(f"Product with id: {products_id} not found.")
-        abort(status.HTTP_404_NOT_FOUND, f"Product with id {products_id} not found.")
+        app.logger.info(f"Product with id: {products_id} not found.")
+        return "", status.HTTP_204_NO_CONTENT
 
     product.delete()
 
     app.logger.info("Product with ID: %d deleted.", product.id)
 
-    return "", status.HTTP_200_OK
+    return "", status.HTTP_204_NO_CONTENT
 
 
 ######################################################################

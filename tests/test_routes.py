@@ -277,7 +277,7 @@ class TestYourResourceService(TestCase):
 
         # Delete the product
         response = self.client.delete(f"{BASE_URL}/{product_id}")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # Try to retrieve the deleted product to confirm deletion
         response = self.client.get(f"{BASE_URL}/{product_id}")
@@ -292,12 +292,7 @@ class TestYourResourceService(TestCase):
 
         # Attempt to delete the non-existent product
         response = self.client.delete(f"{BASE_URL}/{non_existent_product_id}")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-        # Confirm the response contains the correct error message
-        error_message = response.get_json()
-        expected_message = f"Product with id {non_existent_product_id} not found."
-        self.assertIn(expected_message, error_message["message"])
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     # ----------------------------------------------------------
     # TEST LIST
