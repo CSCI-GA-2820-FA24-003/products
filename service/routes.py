@@ -23,6 +23,7 @@ and Delete Products
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
+from decimal import Decimal, InvalidOperation
 from service.models import Products
 from service.common import status  # HTTP Status Codes
 
@@ -211,3 +212,49 @@ def list_products():
     results = [product.serialize() for product in products]
     app.logger.info("Returning %d products", len(results))
     return jsonify(results), status.HTTP_200_OK
+
+
+######################################################################
+# APPLY A DISCOUNT
+######################################################################
+@app.route("/products/<int:product_id>/discount", methods=["POST"])
+def apply_discount(product_id):
+    """
+    Apply a discount to a product's price.
+    """
+    app.logger.info(f"Request to apply discount to product with id: {product_id}")
+
+    # Find the product by its ID
+    product = Products.find(product_id)
+    if not product:
+        app.logger.error(f"Product with id: {product_id} not found.")
+        abort(status.HTTP_404_NOT_FOUND, f"Product with id {product_id} not found.")
+
+    # Get the discount percentage from the request body
+    data = request.get_json()
+    if not data or "discount_percentage" not in data:
+        app.logger.error("Discount percentage not provided in request.")
+        abort(status.HTTP_400_BAD_REQUEST, "Discount percentage must be provided.")
+
+    try:
+        # Convert discount_percentage to Decimal
+        discount_percentage = Decimal(str(data["discount_percentage"]))
+        if discount_percentage < 0 or discount_percentage > 100:
+            raise ValueError("Discount percentage must be between 0 and 100.")
+    except (ValueError, InvalidOperation) as e:
+        app.logger.error(f"Invalid discount percentage: {e}")
+        abort(status.HTTP_400_BAD_REQUEST, str(e))
+
+    # Calculate the new price using Decimal arithmetic
+    original_price = product.price
+    discount_amount = (original_price * discount_percentage) / Decimal("100")
+    new_price = original_price - discount_amount
+    product.price = new_price.quantize(Decimal("0.01"))  # Round to 2 decimal places
+
+    # Update the product
+    product.update()
+
+    app.logger.info(
+        f"Applied {discount_percentage}% discount to product id {product_id}. New price: {product.price}"
+    )
+    return jsonify(product.serialize()), status.HTTP_200_OK

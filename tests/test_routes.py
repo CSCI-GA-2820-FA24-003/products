@@ -294,3 +294,71 @@ class TestYourResourceService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertTrue(all(10 <= float(product["price"]) <= 100 for product in data))
+
+    # ----------------------------------------------------------
+    # TEST APPLY A DISCOUNT
+    # ----------------------------------------------------------
+    def test_apply_discount(self):
+        """Test applying a discount to a product"""
+        # Create a product to test
+        product = Products(
+            name="Test Product", description="Test Description", price=Decimal("100.00")
+        )
+        product.create()
+        self.assertIsNotNone(product.id)
+
+        # Apply a 20% discount
+        discount_data = {"discount_percentage": "20"}  # Provide as string
+        response = self.client.post(
+            f"/products/{product.id}/discount",
+            json=discount_data,
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Check the new price
+        data = response.get_json()
+        expected_price = Decimal("80.00")
+        self.assertEqual(Decimal(data["price"]), expected_price)
+
+    def test_apply_discount_invalid_percentage(self):
+        """Test applying an invalid discount percentage"""
+        product = Products(
+            name="Test Product", description="Test Description", price=Decimal("100.00")
+        )
+        product.create()
+
+        # Invalid discount percentage (e.g., -10%)
+        discount_data = {"discount_percentage": -10}
+        response = self.client.post(
+            f"/products/{product.id}/discount", json=discount_data
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_apply_discount_product_not_found(self):
+        """Test applying a discount to a non-existent product"""
+        discount_data = {"discount_percentage": 20}
+        response = self.client.post("/products/0/discount", json=discount_data)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_apply_discount_missing_percentage(self):
+        """Test applying a discount without providing discount_percentage"""
+        # Create a product to test
+        product = Products(
+            name="Test Product", description="Test Description", price=Decimal("100.00")
+        )
+        product.create()
+        self.assertIsNotNone(product.id)
+
+        # Make a request without 'discount_percentage'
+        discount_data = {}  # Empty dict, no 'discount_percentage'
+        response = self.client.post(
+            f"/products/{product.id}/discount",
+            json=discount_data,
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Verify the error message
+        data = response.get_json()
+        self.assertIn("Discount percentage must be provided.", data.get("message", ""))
