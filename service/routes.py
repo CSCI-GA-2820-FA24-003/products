@@ -160,33 +160,6 @@ def update_products(products_id):
 
 
 ######################################################################
-# RETRIEVE PRODUCTS BY NAME
-######################################################################
-@app.route("/products/name/<string:products_name>", methods=["GET"])
-def get_products_by_name(products_name):
-    """
-    Retrieve Products by name
-    This endpoint will return a Product or Products base on name
-    """
-    app.logger.info(f"Request to retrieve Products with name: {products_name}")
-
-    # Find the product by its name
-    products = Products.find_by_name(products_name)
-
-    # If products not found, abort with a 404 error
-    if not products:
-        app.logger.error(f"Product with name: {products_name} not found.")
-        abort(
-            status.HTTP_404_NOT_FOUND, f"Product with name {products_name} not found."
-        )
-
-    app.logger.info(f"Returning {len(products)} product(s)")
-    results = [product.serialize() for product in products]
-
-    return jsonify(results), status.HTTP_200_OK
-
-
-######################################################################
 # DELETE A PRODUCT BY ID
 ######################################################################
 @app.route("/products/<int:products_id>", methods=["DELETE"])

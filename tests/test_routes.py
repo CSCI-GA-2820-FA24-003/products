@@ -235,32 +235,6 @@ class TestYourResourceService(TestCase):
             "404 Not Found: Product with id 9999999 not found", data["message"]
         )
 
-    def test_get_product_by_name(self):
-        """It should get a list products by name"""
-        test_products = ProductsFactory()
-        response = self.client.post(BASE_URL, json=test_products.serialize())
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        data = response.get_json()
-        product_name = data["name"]
-        response = self.client.get(f"{BASE_URL}/name/{product_name}")
-
-        products = response.get_json()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for data in products:
-            self.assertEqual(data["name"], test_products.name)
-
-    def test_get_product_by_name_not_found(self):
-        """It should not Get a single Product by name thats not found"""
-        non_existent_product_name = "SiwenTao"
-        response = self.client.get(f"{BASE_URL}/name/{non_existent_product_name}")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        data = response.get_json()
-        logging.debug("Response data = %s", data)
-        self.assertIn(
-            "404 Not Found: Product with name SiwenTao not found", data["message"]
-        )
-
     # ----------------------------------------------------------
     # TEST DELETE
     # ----------------------------------------------------------
