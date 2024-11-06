@@ -190,12 +190,24 @@ def delete_products(products_id):
 ######################################################################
 @app.route("/products", methods=["GET"])
 def list_products():
-    """Returns all of the Products"""
+    """Returns filtered or all products"""
     app.logger.info("Request for product list")
 
-    products = []
-    products = Products.all()
+    # Retrieve query parameters
+    product_name = request.args.get("product_name")
+    min_price = request.args.get("min_price", type=float)
+    max_price = request.args.get("max_price", type=float)
 
+    # Apply filters based on query parameters
+    query = Products.query
+    if product_name:
+        query = query.filter(Products.name.ilike(f"%{product_name}%"))
+    if min_price is not None:
+        query = query.filter(Products.price >= min_price)
+    if max_price is not None:
+        query = query.filter(Products.price <= max_price)
+
+    products = query.all()
     results = [product.serialize() for product in products]
     app.logger.info("Returning %d products", len(results))
     return jsonify(results), status.HTTP_200_OK
