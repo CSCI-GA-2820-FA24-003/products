@@ -272,9 +272,25 @@ class TestYourResourceService(TestCase):
     # TEST LIST
     # ----------------------------------------------------------
     def test_get_product_list(self):
-        """It should Get a list of Products"""
+        """It should Get a list of Products with optional filters"""
+        # Create 5 products for testing
         self._create_products(5)
+
+        # Test retrieving all products
         response = self.client.get(BASE_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(len(data), 5)
+
+        # Test filtering by product_name
+        response = self.client.get(f"{BASE_URL}?product_name=example")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        # Adjust expectations based on test data; example product count is just illustrative
+        self.assertTrue(all("example" in product["name"].lower() for product in data))
+
+        # Test filtering by price range
+        response = self.client.get(f"{BASE_URL}?min_price=10&max_price=100")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertTrue(all(10 <= float(product["price"]) <= 100 for product in data))
