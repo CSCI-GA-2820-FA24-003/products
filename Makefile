@@ -58,7 +58,21 @@ cluster-rm: ## Remove a K3D Kubernetes cluster
 	$(info Removing Kubernetes cluster $(CLUSTER)...)
 	k3d cluster delete $(CLUSTER)
 
+.PHONY: build
+build: ## build the environment on with dockerfile docker build --no-cache -t cluster-registry:5000/products:1.0  -f .
+	$(info Building Docker image locally...)
+	docker build --no-cache -t products:1.0 .
+	$(info Tagging Docker image for local registry...)
+	docker tag products:1.0 cluster-registry:5000/products:1.0
+
+
+.PHONY: push
+push : ## Push the service to local Kubernetes
+	$(info Pushing service locally...)
+	sudo bash -c "echo '127.0.0.1    cluster-registry' >> /etc/hosts"
+	docker push cluster-registry:5000/products:1.0
+	
 .PHONY: deploy
-depoy: ## Deploy the service on local Kubernetes
+deploy: ## Deploy the service on local Kubernetes
 	$(info Deploying service locally...)
-	kubectl apply -f k8s/
+	kubectl apply -f k8s -R

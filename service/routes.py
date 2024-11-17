@@ -258,3 +258,9 @@ def apply_discount(product_id):
         f"Applied {discount_percentage}% discount to product id {product_id}. New price: {product.price}"
     )
     return jsonify(product.serialize()), status.HTTP_200_OK
+
+
+@app.route("/health")
+def health():
+    """Kubernetes knows that your microservice is healthy."""
+    return jsonify(status=200, message="Healthy"), status.HTTP_200_OK
