@@ -1,7 +1,9 @@
 # Products service
-
+[![Build Status](https://github.com/CSCI-GA-2820-FA24-003/products/actions/workflows/ci.yml/badge.svg)](https://github.com/CSCI-GA-2820-FA24-003/products/actions)
+[![codecov](https://codecov.io/gh/CSCI-GA-2820-FA24-003/products/graph/badge.svg?token=O3C55LWVI9)](https://codecov.io/gh/CSCI-GA-2820-FA24-003/products)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-red.svg)](https://www.python.org/)
+
 
 This is a skeleton you can use to start your projects
 
