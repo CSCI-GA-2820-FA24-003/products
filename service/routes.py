@@ -177,7 +177,7 @@ def delete_products(products_id):
     # If product not found, abort with a 404 error
     if not product:
         app.logger.info(f"Product with id: {products_id} not found.")
-        return "", status.HTTP_204_NO_CONTENT
+        return "", status.HTTP_404_NOT_FOUND
 
     product.delete()
 
@@ -185,6 +185,42 @@ def delete_products(products_id):
 
     return "", status.HTTP_204_NO_CONTENT
 
+######################################################################
+# DELETE PRODUCT BY NAME
+######################################################################
+@app.route("/products", methods=["DELETE"])
+def delete_products_by_name():
+    """
+    Delete Product(s) by name
+    This endpoint will delete Product(s) by name
+    """
+    # Get query parameters
+    name = request.args.get('name', type=str)
+    app.logger.info(f"Request to delete Product with name: {name}")
+
+    if not name:
+        app.logger.info("No name specified for deletion")
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            description="Name must be specified for deletion",
+        )
+        
+    products = Products.find_by_name(name)
+
+    if not products:
+        app.logger.info("Product not found")
+        abort(status.HTTP_404_NOT_FOUND, description="Product not found")
+
+    # Delete the product(s)
+    for product in products:
+        product.delete()
+    app.logger.info(f"Product(s) deleted: {[product.id for product in products]}")
+
+    # Return confirmation message
+    return (
+        jsonify({'message': 'Product(s) deleted successfully'}),
+        status.HTTP_204_NO_CONTENT,
+    )
 
 ######################################################################
 # LIST ALL PRODUCTS
