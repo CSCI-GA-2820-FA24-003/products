@@ -274,7 +274,39 @@ class TestYourResourceService(TestCase):
 
         # Attempt to delete the non-existent product
         response = self.client.delete(f"{BASE_URL}/{non_existent_product_id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        
+        
+    def test_delete_product_by_name(self):
+        """It should Delete Product(s) by name"""
+        # First, create a product to be deleted
+        test_product = ProductsFactory()
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Get the new product's id
+        new_product = response.get_json()
+        product_id = new_product["id"]
+        product_name = new_product["name"]
+
+        # Delete the product
+        response = self.client.delete(f"{BASE_URL}?name={product_name}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Try to retrieve the deleted product to confirm deletion
+        response = self.client.get(f"{BASE_URL}/{product_id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Product not found test <niv>
+
+    def test_delete_product_not_found_by_name(self):
+        """It should return 404 when trying to delete a Product that does not exist"""
+        # Use a non-existent product id
+        non_existent_product_name = "Q0ix6B"
+
+        # Attempt to delete the non-existent product
+        response = self.client.delete(f"{BASE_URL}?name={non_existent_product_name}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     # ----------------------------------------------------------
     # TEST LIST
