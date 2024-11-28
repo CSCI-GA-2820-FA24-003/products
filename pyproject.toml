@@ -14,6 +14,7 @@ psycopg = {extras = ["binary"], version = "^3.1.19"}
 retry2 = "^0.9.5"
 python-dotenv = "^1.0.1"
 gunicorn = "^22.0.0"
+#werkzeug = "2.1.0"
 
 [tool.poetry.group.dev.dependencies]
 honcho = "^1.1.0"
@@ -27,12 +28,6 @@ factory-boy = "^3.3.0"
 coverage = "^7.5.3"
 httpie = "^3.2.2"
 poetry-plugin-export = "^1.7.1"
-python = "^3.11"
-Flask = "2.1.1"
-flask-sqlalchemy = "2.5.1"
-psycopg = {extras = ["binary"], version = "^2.9.3"}  # Matches psycopg2-binary
-python-dotenv = "0.19.2"
-werkzeug = "2.1.0"
 
 [build-system]
 requires = ["poetry-core"]
