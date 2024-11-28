@@ -20,10 +20,9 @@ Products Service
 This service implements a REST API that allows you to Create, Read, Update
 and Delete Products
 """
-
+from decimal import Decimal, InvalidOperation
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
-from decimal import Decimal, InvalidOperation
 from service.models import Products
 from service.common import status  # HTTP Status Codes
 
@@ -185,9 +184,12 @@ def delete_products(products_id):
 
     return "", status.HTTP_204_NO_CONTENT
 
+
 ######################################################################
 # DELETE PRODUCT BY NAME
 ######################################################################
+
+
 @app.route("/products", methods=["DELETE"])
 def delete_products_by_name():
     """
@@ -195,7 +197,7 @@ def delete_products_by_name():
     This endpoint will delete Product(s) by name
     """
     # Get query parameters
-    name = request.args.get('name', type=str)
+    name = request.args.get("name", type=str)
     app.logger.info(f"Request to delete Product with name: {name}")
 
     if not name:
@@ -204,7 +206,7 @@ def delete_products_by_name():
             status.HTTP_400_BAD_REQUEST,
             description="Name must be specified for deletion",
         )
-        
+
     products = Products.find_by_name(name)
 
     if not products:
@@ -218,9 +220,10 @@ def delete_products_by_name():
 
     # Return confirmation message
     return (
-        jsonify({'message': 'Product(s) deleted successfully'}),
+        jsonify({"message": "Product(s) deleted successfully"}),
         status.HTTP_204_NO_CONTENT,
     )
+
 
 ######################################################################
 # LIST ALL PRODUCTS
