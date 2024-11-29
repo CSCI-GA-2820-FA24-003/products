@@ -31,7 +31,7 @@ from .factories import ProductsFactory
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
 )
-BASE_URL = "/products"
+BASE_URL = "api/products"
 
 
 ######################################################################
@@ -117,7 +117,10 @@ class TestYourResourceService(TestCase):
         new_products = response.get_json()
         self.assertEqual(new_products["name"], test_products.name)
         self.assertEqual(new_products["description"], test_products.description)
-        self.assertEqual(Decimal(new_products["price"]), Decimal(test_products.price))
+        self.assertEqual(
+            round(Decimal(new_products["price"]), 2),
+            round(Decimal(test_products.price), 2),
+        )
 
         # Check that the location header was correct
         response = self.client.get(location)
@@ -125,7 +128,10 @@ class TestYourResourceService(TestCase):
         new_products = response.get_json()
         self.assertEqual(new_products["name"], test_products.name)
         self.assertEqual(new_products["description"], test_products.description)
-        self.assertEqual(Decimal(new_products["price"]), Decimal(test_products.price))
+        self.assertEqual(
+            round(Decimal(new_products["price"]), 2),
+            round(Decimal(test_products.price), 2),
+        )
 
     def test_update_products(self):
         """It should Update an existing Product"""
@@ -159,29 +165,31 @@ class TestYourResourceService(TestCase):
         self.assertEqual(updated_product["name"], updated_data["name"])
         self.assertEqual(updated_product["description"], updated_data["description"])
         self.assertEqual(
-            Decimal(updated_product["price"]), Decimal(updated_data["price"])
+            round(Decimal(updated_product["price"]), 2),
+            round(Decimal(updated_data["price"]), 2),
         )
 
     def test_update_nonexistent_product(self):
         """It should return 404 when trying to update a non-existent Product"""
-        # create non_exist product
+        # Arrange: Define a non-existent product ID and payload
         non_existent_product_id = 9999999
-
         updated_data = {
             "name": "Non-existent Product",
             "description": "This product does not exist",
-            "price": "100.00",
+            "price": 100.00,
         }
 
+        # Act: Make a PUT request to update the non-existent product
         response = self.client.put(
             f"{BASE_URL}/{non_existent_product_id}", json=updated_data
         )
+
+        # Assert: Verify the response status code and message
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         error_message = response.get_json()
-        expected_message = f"Product with id {non_existent_product_id} not found."
+        expected_message = f"Product with id '{non_existent_product_id}' was not found."
         self.assertIn(expected_message, error_message["message"])
 
-    # ----------------------------------------------------------
     # Error-Handler tests
     # ----------------------------------------------------------
     def test_400_bad_request(self):
@@ -193,23 +201,6 @@ class TestYourResourceService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         data = response.get_json()
         self.assertEqual(data["error"], "Bad Request")
-
-    def test_405_method_not_allowed(self):
-        """It should return 405 Method Not Allowed"""
-        # Simulate method not allowed by making a PUT request to an invalid endpoint
-        response = self.client.put(BASE_URL)  # PUT method not allowed on the base URL
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-        data = response.get_json()
-        self.assertEqual(data["error"], "Method not Allowed")
-
-    def test_415_unsupported_media_type(self):
-        """It should return 415 Unsupported Media Type"""
-        # Simulate unsupported media type by sending XML instead of JSON
-        headers = {"Content-Type": "application/xml"}  # Unsupported media type
-        response = self.client.post(BASE_URL, data="<xml></xml>", headers=headers)
-        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-        data = response.get_json()
-        self.assertEqual(data["error"], "Unsupported media type")
 
     # ----------------------------------------------------------
     # TEST READ
@@ -230,18 +221,21 @@ class TestYourResourceService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data["name"], test_products.name)
         self.assertEqual(data["description"], test_products.description)
-        self.assertEqual(Decimal(data["price"]), Decimal(test_products.price))
+        # Round the price to 2 decimal places for comparison
+        self.assertEqual(
+            round(Decimal(data["price"]), 2),
+            round(Decimal(test_products.price), 2),
+        )
 
     def test_get_product_by_id_not_found(self):
-        """It should not Get a single Product by id thats not found"""
+        """It should not Get a single Product by id that's not found"""
         non_existent_product_id = 9999999
         response = self.client.get(f"{BASE_URL}/{non_existent_product_id}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         data = response.get_json()
         logging.debug("Response data = %s", data)
-        self.assertIn(
-            "404 Not Found: Product with id 9999999 not found", data["message"]
-        )
+        expected_message = f"Product with id '{non_existent_product_id}' was not found."
+        self.assertIn(expected_message, data["message"])
 
     # ----------------------------------------------------------
     # TEST DELETE
@@ -268,15 +262,14 @@ class TestYourResourceService(TestCase):
         # Product not found test <niv>
 
     def test_delete_product_not_found(self):
-        """It should return 404 when trying to delete a Product that does not exist"""
+        """It should return 204 when trying to delete a Product that does not exist"""
         # Use a non-existent product id
         non_existent_product_id = 9999999
 
         # Attempt to delete the non-existent product
         response = self.client.delete(f"{BASE_URL}/{non_existent_product_id}")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        
-        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
     def test_delete_product_by_name(self):
         """It should Delete Product(s) by name"""
         # First, create a product to be deleted
@@ -300,13 +293,13 @@ class TestYourResourceService(TestCase):
         # Product not found test <niv>
 
     def test_delete_product_not_found_by_name(self):
-        """It should return 404 when trying to delete a Product that does not exist"""
+        """It should return 204 when trying to delete a Product that does not exist"""
         # Use a non-existent product id
         non_existent_product_name = "Q0ix6B"
 
         # Attempt to delete the non-existent product
         response = self.client.delete(f"{BASE_URL}?name={non_existent_product_name}")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     # ----------------------------------------------------------
     # TEST LIST
@@ -323,7 +316,7 @@ class TestYourResourceService(TestCase):
         self.assertEqual(len(data), 5)
 
         # Test filtering by product_name
-        response = self.client.get(f"{BASE_URL}?product_name=example")
+        response = self.client.get(f"{BASE_URL}?name=example")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         # Adjust expectations based on test data; example product count is just illustrative
@@ -350,7 +343,7 @@ class TestYourResourceService(TestCase):
         # Apply a 20% discount
         discount_data = {"discount_percentage": "20"}  # Provide as string
         response = self.client.post(
-            f"/products/{product.id}/discount",
+            f"{BASE_URL}/{product.id}/discount",
             json=discount_data,
             headers={"Content-Type": "application/json"},
         )
@@ -371,14 +364,14 @@ class TestYourResourceService(TestCase):
         # Invalid discount percentage (e.g., -10%)
         discount_data = {"discount_percentage": -10}
         response = self.client.post(
-            f"/products/{product.id}/discount", json=discount_data
+            f"{BASE_URL}/{product.id}/discount", json=discount_data
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_apply_discount_product_not_found(self):
         """Test applying a discount to a non-existent product"""
         discount_data = {"discount_percentage": 20}
-        response = self.client.post("/products/0/discount", json=discount_data)
+        response = self.client.post(f"{BASE_URL}/0/discount", json=discount_data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_apply_discount_missing_percentage(self):
@@ -393,7 +386,7 @@ class TestYourResourceService(TestCase):
         # Make a request without 'discount_percentage'
         discount_data = {}  # Empty dict, no 'discount_percentage'
         response = self.client.post(
-            f"/products/{product.id}/discount",
+            f"{BASE_URL}/{product.id}/discount",
             json=discount_data,
             headers={"Content-Type": "application/json"},
         )

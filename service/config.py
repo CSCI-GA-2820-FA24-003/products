@@ -17,3 +17,8 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 # Secret for session management
 SECRET_KEY = os.getenv("SECRET_KEY", "sup3r-s3cr3t")
 LOGGING_LEVEL = logging.INFO
+
+# Get the database name to use
+CLOUDANT_DBNAME = os.getenv("CLOUDANT_DBNAME", "postgres")
+# See if an API Key has been set for security
+API_KEY = os.getenv("API_KEY")
