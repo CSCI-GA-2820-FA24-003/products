@@ -130,10 +130,10 @@ class Products(db.Model):
 
     @classmethod
     def find_by_name(cls, name):
-        """Returns all Productss with the given name
+        """Returns all Products with the given name
 
         Args:
-            name (string): the name of the Productss you want to match
+            name (string): the name of the Products you want to match
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name).all()

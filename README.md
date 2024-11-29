@@ -11,6 +11,51 @@ This is a skeleton you can use to start your projects
 
 The Products service represents the store items that customers can buy. It provides a RESTful API for creating, retrieving, updating, and deleting products in a store's catalog. The service is built with Flask and uses PostgreSQL as the database to store product information.
 
+### How to Deploy 
+
+##### Steps to Deploy:
+ Use the provided `Makefile` commands to streamline the setup.
+   ```bash
+   make cluster
+   make build
+   make push 
+   make deploy
+   ```
+
+
+   Verify that all pods are running successfully:
+   ```bash
+   kubectl get pods
+   ```
+   **Expected output**:
+   ```plaintext
+   NAME                        READY   STATUS    RESTARTS        AGE
+   postgres-0                  1/1     Running   0               4m11s
+   products-xxxxxx             1/1     Running   2 (3m47s ago)   4m11s
+   products-xxxxxx             1/1     Running   2 (3m47s ago)   4m11s
+   ```
+
+
+
+### Running the API Documentation
+
+After starting the application (locally or in the cluster), you can access the API documentation via a web browser. The service provides Swagger API documentation.
+
+#### Steps to Access API Docs:
+
+1. **Start the application**:
+   ```bash
+   make run
+   ```
+
+2. **Visit the Swagger Docs**:
+   Open your browser and navigate to:
+   ```plaintext
+   http://<your-server-url>/apidocs
+   ```
+   e.g., `http://127.0.0.1:8080/apidocs` for local development.
+
+
 ### How to Run It
 
 
@@ -21,52 +66,10 @@ The Products service represents the store items that customers can buy. It provi
  Start the server using Flask's built-in development server:
 
    ```bash
-   flask run
+   make run
    ```
 
-#### 2. Running Locally with Flask
 
-If you prefer to run the service locally, you need to install the required dependencies and start the application manually. Below are the main dependencies and instructions for setting it up:
-
-##### Steps to Run Locally:
-
-1. **Install the dependencies**:
-   Ensure you have Python and pip installed, then run:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. **Set up environment variables**:
-   Create a `.env` file to store environment-specific variables such as database credentials. Example:
-
-   ```bash
-   FLASK_APP=service:app
-   FLASK_ENV=development
-   DATABASE_URL=postgresql://<username>:<password>@localhost/<dbname>
-   ```
-
-3. **Run the Flask development server**:
-   Start the server using Flask's built-in development server:
-
-   ```bash
-   flask run
-   ```
-
-## How to Test It
-
-We use standard **PyUnit** syntax for writing and running tests. To execute the tests, follow the instructions in our `Makefile`. Simply run the following command in your terminal:
-
-```bash
-make test
-```
-
-This will automatically run the tests and generate a coverage report.
-
-## Test Coverage
-
-**Required Test Coverage:** 95%  
-**Total Coverage (as of 16/10/2024):** 95.91%
 
 
 ## Database Schema
@@ -89,6 +92,11 @@ The table structure for storing product information is defined as follows:
 3. [Create a New Product](#3-create-a-new-product)
 4. [Update a Product](#4-update-a-product)
 5. [Delete a Product by ID](#5-delete-a-product-by-id)
+6. [Action route](#6-action-route)
+   - [apply discount](#post-productsproduct_iddiscount)
+7. [Query route](#7-query-route)
+   - [delete by name](#71-delete-productsnameproduct_name)
+   - [filter product with price or name](#72-get-nameproduct_namemin_pricevaluemax_pricevalue)
 
 ### 1. **List All Products**
 
@@ -258,8 +266,57 @@ Delete a specific product by its ID.
 
 #### Response
 
- **Status:** `200 OK` (if deleted successfully)  
- **Status:** `404 Not Found` (if the product is not found)
+ **Status:** `204 NO_CONTENT` (if deleted successfully)  
+ **Status:** `204 NO_CONTENT` (if the product is not found)
+
+
+
+### 6. **Action route** 
+#### POST `/products/{product_id}/discount`
+
+
+#### **Request**
+
+**Method:** `POST`  
+**URL:** `/products/{product_id}/discount`  
+
+
+#### **Response**
+
+**Status:** `200 OK` (Successfully applied discount)  
+
+ **Status:** `400 BAD_REQUEST` (Invalid discount percentage)  
+ **Status:** `404 NOT_FOUND` (Product not found)  
+
+### 7 **Query route**
+
+#### **7.1 DELETE `/products?name=<product_name>`**
+
+Delete one or more products that match the specified name.
+
+#### Request
+
+  **Method:** `DELETE`  
+  **URL:** `/products?name=<product_name>`  
+  **Query Parameter:**  
+  - `name` *(required)*: The name of the product(s) to delete.
+
+#### Response
+
+- **Status:** `204 NO_CONTENT` (if deleted successfully)  
+- **Status:** `204 NO_CONTENT` (if no products are found with the specified name)
+
+#### **7.2 GET `name=<product_name>&min_price=<value>&max_price=<value>`**
+  **Query Parameter:**  
+   `name` : Filter products that contain the specified name.
+   `min_price` : Filter products with a price greater than or equal to the specified value.
+.
+   `max_price` : Filter products with a price less than or equal to the specified value.
+#### Response
+
+  **Status:** `200 OK` 
+
+
 
 ## Test Coverage
 
