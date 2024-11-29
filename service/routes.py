@@ -370,6 +370,7 @@ def error(status_code, reason):
     app.logger.error(reason)
     abort(status_code, reason)
 
+
 @app.route("/health")
 def health():
     """Kubernetes knows that your microservice is healthy."""
