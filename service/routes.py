@@ -362,15 +362,6 @@ class DiscountResource(Resource):
         return product.serialize(), status.HTTP_200_OK
 
 
-#############################################
-# Logs error messages before aborting
-#############################################
-def error(status_code, reason):
-    """Logs the error and then aborts"""
-    app.logger.error(reason)
-    abort(status_code, reason)
-
-
 @app.route("/health")
 def health():
     """Kubernetes knows that your microservice is healthy."""
