@@ -275,8 +275,7 @@ class TestYourResourceService(TestCase):
         # Attempt to delete the non-existent product
         response = self.client.delete(f"{BASE_URL}/{non_existent_product_id}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        
-        
+
     def test_delete_product_by_name(self):
         """It should Delete Product(s) by name"""
         # First, create a product to be deleted
