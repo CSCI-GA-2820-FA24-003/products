@@ -291,7 +291,6 @@ class ProductCollection(Resource):
     @api.doc("delete_products_by_name", security="apikey")
     @api.expect(delete_product_args, validate=True)
     @api.response(204, "Products deleted (idempotent)")
-    @api.response(400, "Name must be specified for deletion")
     def delete(self):
         """Delete Product(s) by name"""
         args = delete_product_args.parse_args()
