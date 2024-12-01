@@ -11,13 +11,15 @@ services:
     container_name: nyu-project
     volumes:
       - ..:/app
-    command: sleep infinity
+    command: gunicorn --bind 0.0.0.0:8080 wsgi:app
     environment:
       PORT: 8080
       FLASK_APP: wsgi:app
       FLASK_DEBUG: "True"
       GUNICORN_BIND: "0.0.0.0:8080"
       DATABASE_URI: postgresql+psycopg://postgres:pgs3cr3t@postgres:5432/postgres
+    ports:
+      - "8080:8080"
     networks:
       - dev
     depends_on:
@@ -25,11 +27,10 @@ services:
 
   postgres:
     image: postgres:15-alpine
-    # Uncomment ports to access database from your computer (optional)
-    # ports:
-    #   - 5432:5432
     environment:
       POSTGRES_PASSWORD: pgs3cr3t
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
     volumes:
       - postgres:/var/lib/postgresql/data
     networks:

@@ -1,4 +1,3 @@
-// cSpell: disable
 {
 	"name": "NYU Project",
 	"dockerComposeFile": "docker-compose.yml",
@@ -24,7 +23,7 @@
 				"markdown-preview-github-styles.colorTheme": "light",
 				"makefile.extensionOutputFolder": "/tmp",
 				"python.testing.unittestEnabled": false,
-				"python.testing.pytestEnabled": true,			
+				"python.testing.pytestEnabled": true,
 				"python.testing.pytestArgs": [
 					"tests"
 				],
@@ -34,15 +33,20 @@
 					"**/*.pyc": true,
 					"**/__pycache__": true,
 					"**/.pytest_cache": true
-				}
+				},
+				"cucumberautocomplete.steps": ["features/steps/*.py"],
+				"cucumberautocomplete.syncfeatures": "features/*.feature",
+				"cucumberautocomplete.strictGherkinCompletion": true,
+				"cucumberautocomplete.strictGherkinValidation": true,
+				"cucumberautocomplete.smartSnippets": true,
+				"cucumberautocomplete.gherkinDefinitionPart": "@(given|when|then)\\("
 			},
 			"extensions": [
 				"ms-python.python",
-				"ms-python.pylint",
 				"ms-python.vscode-pylance",
+				"ms-python.pylint",
 				"ms-python.flake8",
 				"ms-python.black-formatter",
-				"alexkrechik.cucumberautocomplete",
 				"ms-vscode.makefile-tools",
 				"yzhang.markdown-all-in-one",
 				"DavidAnson.vscode-markdownlint",
@@ -59,22 +63,18 @@
 				"wholroyd.jinja",
 				"Zignd.html-css-class-completion",
 				"redhat.vscode-yaml",
-                "redhat.vscode-openshift-connector",
+				"redhat.vscode-openshift-connector",
 				"ms-azuretools.vscode-docker",
 				"ms-kubernetes-tools.vscode-kubernetes-tools",
 				"inercia.vscode-k3d",
 				"rangav.vscode-thunder-client",
-				"bbenoist.vagrant",
-				"streetsidesoftware.code-spell-checker"
+				"streetsidesoftware.code-spell-checker",
+				"alexkrechik.cucumberautocomplete",
+				"redhat.fabric8-analytics"
 			]
 		}
 	},
 	"postCreateCommand": "bash /app/.devcontainer/scripts/post-install.sh",
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [8080],
-
-	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
 		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {}
