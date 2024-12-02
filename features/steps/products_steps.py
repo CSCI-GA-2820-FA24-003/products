@@ -38,7 +38,7 @@ def step_impl(context):
     """Delete all Products and load new ones"""
 
     # Get a list all of the products
-    rest_endpoint = f"{context.base_url}/products"
+    rest_endpoint = f"{context.base_url}/api/products"
     context.resp = requests.get(rest_endpoint, timeout=WAIT_TIMEOUT)
     expect(context.resp.status_code).equal_to(HTTP_200_OK)
     # and delete them one by one
@@ -63,7 +63,7 @@ def step_impl(context):
 def step_impl(context, product_name):
     """Ensure the product with the given name exists"""
 
-    rest_endpoint = f"{context.base_url}/products"
+    rest_endpoint = f"{context.base_url}/api/products"
     context.resp = requests.get(
         f"{rest_endpoint}?name={product_name}", timeout=WAIT_TIMEOUT
     )
@@ -87,7 +87,7 @@ def step_impl(context, product_name):
 def step_impl(context, product_name):
     """Ensure the product with the given name is deleted"""
 
-    rest_endpoint = f"{context.base_url}/products"
+    rest_endpoint = f"{context.base_url}/api/products"
     context.resp = requests.get(
         f"{rest_endpoint}?name={product_name}", timeout=WAIT_TIMEOUT
     )
@@ -107,7 +107,7 @@ def step_impl(context, product_name):
 def step_impl(context, product_name, new_price):
     """Ensure the product with the given name is updated"""
 
-    rest_endpoint = f"{context.base_url}/products"
+    rest_endpoint = f"{context.base_url}/api/products"
     context.resp = requests.get(
         f"{rest_endpoint}?name={product_name}", timeout=WAIT_TIMEOUT
     )

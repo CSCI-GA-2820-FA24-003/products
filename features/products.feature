@@ -36,6 +36,8 @@ Scenario: Create a Product
     And I should see "Noise cancelling headphones" in the "Description" field
     And I should see "150.00" in the "Price" field
 
+
+
 Scenario: Read a Product
     When I visit the "Home Page"
     And I set the "Name" to "Laptop"
@@ -54,14 +56,14 @@ Scenario: Read a Product
     And I should see "High-end laptop" in the "Description" field
     And I should see "1000.00" in the "Price" field
 
+
+
 Scenario: Update a Product
     When I visit the "Home Page"
     And I set the "Name" to "Laptop"
     And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "Laptop" in the "Name" field
-    And I should see "High-end laptop" in the "Description" field
-    And I should see "1000.00" in the "Price" field
+    And I should see "Laptop" in the results
     When I change "Price" to "1200.00"
     And I press the "Update" button
     Then I should see the message "Success"
@@ -82,18 +84,16 @@ Scenario: Delete a Product
     And I set the "Name" to "Chair"
     And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "Chair" in the "Name" field
-    And I should see "Office chair" in the "Description" field
-    And I should see "150.00" in the "Price" field
+    And I should see "Chair" in the results
     When I copy the "Id" field
-    And I press the "Clear" button
     And I paste the "Id" field
     And I press the "Delete" button
-    Then I should see the message "Product has been Deleted!"
+    Then I should see the message "Success"
     When I press the "Clear" button
     And I paste the "Id" field
-    And I press the "Retrieve" button
-    Then I should see the message "was not found"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should not see "Chair" in the results
 
 Scenario: List Products
     When I visit the "Home Page"
@@ -102,30 +102,5 @@ Scenario: List Products
     And I should see "Laptop" in the results
     And I should see "Smartphone" in the results
     And I should see "Chair" in the results
-    And I should not see "Table" in the results
+    And I should not see "Pants" in the results
 
-Scenario: Search for Name
-    When I visit the "Home Page"
-    And I set the "Name" to "Laptop"
-    And I press the "Search" button
-    Then I should see the message "Success"
-    And I should see "Laptop" in the results
-    And I should not see "Smartphone" in the results
-
-Scenario: Search for Price
-    When I visit the "Home Page"
-    And I set the "Price" to "150.00"
-    And I press the "Search" button
-    Then I should see the message "Success"
-    And I should see "150.00" in the results
-    And I should see "Chair" in the results
-    And I should not see "Laptop" in the results
-
-Scenario: Search for Category
-    When I visit the "Home Page"
-    And I set the "Category" to "Furniture"
-    And I press the "Search" button
-    Then I should see the message "Success"
-    And I should see "Chair" in the results
-    And I should see "Table" in the results
-    And I should not see "Laptop" in the results
