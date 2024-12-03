@@ -172,7 +172,7 @@ class ProductResource(Resource):
     """
 
     # ------------------------------------------------------------------
-    # RETRIEVE A PRODUCT 
+    # RETRIEVE A PRODUCT
     # ------------------------------------------------------------------
     @api.doc("get_product")
     @api.response(404, "Product not found")
