@@ -134,7 +134,7 @@ delete_product_args.add_argument(
     "name",
     type=str,
     location="args",
-    required=True,  # Make 'name' required for deletion
+    required=True,
     help="Name of the product to delete",
 )
 
@@ -172,7 +172,7 @@ class ProductResource(Resource):
     """
 
     # ------------------------------------------------------------------
-    # RETRIEVE A PRODUCT
+    # RETRIEVE A PRODUCT 
     # ------------------------------------------------------------------
     @api.doc("get_product")
     @api.response(404, "Product not found")
