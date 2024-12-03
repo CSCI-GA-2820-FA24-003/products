@@ -1,3 +1,4 @@
+#Trigger template for products team
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:

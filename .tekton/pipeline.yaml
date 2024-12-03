@@ -1,4 +1,4 @@
-# Completed cd-pipeline from the OpenShift lab
+# Completed cd-pipeline from the OpenShift lab for Products team
 ---
 apiVersion: tekton.dev/v1
 kind: Pipeline
