@@ -16,6 +16,7 @@ Scenario: The server is running
     Then I should see "Product Demo RESTful Service" in the title
     And I should not see "404 Not Found"
 
+
 Scenario: Create a Product
     When I visit the "Home Page"
     And I set the "Name" to "Headphones"
@@ -56,8 +57,6 @@ Scenario: Read a Product
     And I should see "High-end laptop" in the "Description" field
     And I should see "1000.00" in the "Price" field
 
-
-
 Scenario: Update a Product
     When I visit the "Home Page"
     And I set the "Name" to "Laptop"
@@ -95,6 +94,19 @@ Scenario: Delete a Product
     Then I should see the message "Success"
     And I should not see "Chair" in the results
 
+
+
+Scenario: Query products by name
+    When I visit the "Home Page"
+    And I press the "Clear" button       
+    
+    When I set the "Name" to "Lap"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Laptop" in the results
+    And I should not see "Smartphone" in the results
+
+
 Scenario: List Products
     When I visit the "Home Page"
     And I press the "Search" button
@@ -104,3 +116,20 @@ Scenario: List Products
     And I should see "Chair" in the results
     And I should not see "Pants" in the results
 
+Scenario: Apply discount to a product
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I set the "Name" to "Laptop"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Laptop" in the results
+    And I should see "1000.00" in the "Price" field
+    When I set the "Discount" to "20"
+    And I press the "Apply-Discount" button
+    Then I should see the message "Success"
+    When I press the "Clear" button
+    And I set the "Name" to "Laptop"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Laptop" in the results
+    And I should see "800.00" in the "Price" field

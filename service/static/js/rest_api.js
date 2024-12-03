@@ -10,6 +10,8 @@ $(function () {
         $("#product_name").val(res.name);
         $("#product_description").val(res.description);
         $("#product_price").val(res.price.toFixed(2));
+        $("#product_discount").val("");  
+
     }
 
     // Clears all form fields
@@ -18,6 +20,8 @@ $(function () {
         $("#product_name").val("");
         $("#product_description").val("");
         $("#product_price").val("");
+        $("#product_discount").val("");
+
     }
 
     // Updates the flash message area
@@ -31,30 +35,25 @@ $(function () {
 // ****************************************
 
 $("#search-btn").click(function () {
+    $("#flash_message").empty();
+
     let name = $("#product_name").val();
     let query_string = "";
     if (name) {
-        // 使用精确的名称匹配
         query_string = `?name=${encodeURIComponent(name)}`;
     }
 
-    $("#flash_message").empty();
+    $("#search_results").empty();
+
 
     let ajax = $.ajax({
         type: "GET",
-        url: `/api/products${query_string}`,
+        url: `api/products${query_string}`,
         contentType: "application/json",
-        data: ''
     });
 
     ajax.done(function(res){
-        $("#search_results").empty();
         
-        // 如果是搜索特定名称，只显示完全匹配的结果
-        let filteredRes = name 
-            ? res.filter(product => product.name.toLowerCase() === name.toLowerCase())
-            : res;
-
         let table = '<table class="table table-striped">' +
                     '<thead><tr>' +
                     '<th class="col-md-1">ID</th>' +
@@ -63,7 +62,7 @@ $("#search-btn").click(function () {
                     '<th class="col-md-3">Price</th>' +
                     '</tr></thead><tbody>';
 
-        filteredRes.forEach(product => {
+        res.forEach(product => {
             table += `<tr>
                 <td>${product.id}</td>
                 <td>${product.name}</td>
@@ -73,19 +72,22 @@ $("#search-btn").click(function () {
         });
 
         table += '</tbody></table>';
-        $("#search_results").append(table);
+        
+        $("#search_results").html(table);
 
-        // 如果有精确匹配的结果，填充表单
-        if (filteredRes.length === 1) {
-            update_form_data(filteredRes[0]);
+        if (res.length === 1) {
+            update_form_data(res[0]);
+        } else if (name && res.length > 0) {
+            clear_form_data();
+            $("#product_name").val(name); 
         }
 
-        flash_message("Success");
+        $("#flash_message").text("Success");
     });
 
     ajax.fail(function(res){
         clear_form_data();
-        flash_message(res.responseJSON?.message || "Error occurred while searching for products!");
+        $("#flash_message").text(res.responseJSON?.message || "Error occurred while searching for products!");
     });
 });
     // ****************************************
@@ -208,7 +210,7 @@ $("#search-btn").click(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/api/products/${product_id}`,
+            url: `api/products/${product_id}`,
             contentType: "application/json",
             data: ''
         })
@@ -241,7 +243,7 @@ $("#search-btn").click(function () {
     
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/api/products/${product_id}`,
+            url: `api/products/${product_id}`,
             contentType: "application/json",
             data: '',
         })
@@ -272,34 +274,55 @@ $("#search-btn").click(function () {
     // ****************************************
     // Apply Discount to a Product
     // ****************************************
-
     $("#apply-discount-btn").click(function () {
 
         let product_id = $("#product_id").val();
-        let discount_percentage = $("#discount_percentage").val();
+        let discount_percentage = $("#product_discount").val();
 
+    
+    
+        if (!product_id) {
+            flash_message("Please select a product first");
+            return;
+        }
+    
+        if (!discount_percentage) {
+            flash_message("Please enter a discount percentage");
+            return;
+        }
+        let parsed_discount = parseFloat(discount_percentage);
+        if (isNaN(parsed_discount) || parsed_discount < 0 || parsed_discount > 100) {
+            flash_message("Discount must be between 0 and 100");
+            return;
+        }
+    
         let data = {
-            "discount_percentage": parseFloat(discount_percentage)
+            "discount_percentage": parsed_discount
         };
-
+    
         $("#flash_message").empty();
-
+    
         let ajax = $.ajax({
             type: "POST",
-            url: `/api/products/${product_id}/discount`,
+            url: `/api/products/${product_id}/discount`, 
             contentType: "application/json",
             data: JSON.stringify(data),
         });
 
+    
         ajax.done(function (res) {
-            update_form_data(res);
+            console.log("Discount applied successfully:", res);
+            clear_form_data()            
             flash_message("Success");
         });
-
+    
         ajax.fail(function (res) {
-            flash_message(res.responseJSON.message || "Error occurred while applying the discount!");
+
+            console.error("Error applying discount:", res); 
+            flash_message(res.responseJSON?.message || "Error occurred while applying the discount!");
         });
-
     });
+    
+    });
+    
 
-});
