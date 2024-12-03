@@ -1,5 +1,4 @@
 name: CI Build
-
 on:
   push:
     branches:
@@ -13,12 +12,10 @@ on:
     paths-ignore:
       - "README.md"
       - ".vscode/**"
-
 jobs:
   build:
     runs-on: ubuntu-latest
     container: python:3.11-slim
-
     services:
       postgres:
         image: postgres:15-alpine
@@ -32,31 +29,32 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
             
       - name: Install dependencies
         run: |
-          python -m pip install poetry
+          python -m pip install --upgrade pip poetry
           poetry config virtualenvs.create false
           poetry lock
           poetry install
-
       - name: Linting with flake8 and pylint
         run: |
           flake8 service tests --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 service tests --count --max-complexity=10 --max-line-length=127 --statistics
           pylint service tests --max-line-length=127
-
+      - name: Wait for database connection
+        run: |
+          for i in {1..30}; do
+            pg_isready -h postgres -p 5432 && break
+            sleep 1
+          done
       - name: Run unit tests with PyTest
-        run: pytest --pspec --cov=service --cov-report=xml --cov-fail-under=95
         env:
           DATABASE_URI: "postgresql+psycopg://postgres:pgs3cr3t@postgres:5432/testdb"
           SECRET_KEY: sup3r-s3cr3t
         run: pytest --pspec --cov=service --cov-report=xml --cov-fail-under=95 --disable-warnings
-
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3.1.4
         with:
