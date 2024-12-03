@@ -16,10 +16,8 @@
 """
 Module: error_handlers
 """
-
 from flask import jsonify
 from flask import current_app as app  # Import Flask application
-from werkzeug.exceptions import NotFound, InternalServerError, BadRequest
 from service.models import DataValidationError
 from service.common import status
 
@@ -31,72 +29,10 @@ from service.common import status
 def request_validation_error(error):
     """Handles Value Errors from bad data"""
     message = str(error)
-    app.logger.warning(f"Data validation error: {message}")
+    app.logger.warning(message)
     return (
         jsonify(
-            status=status.HTTP_400_BAD_REQUEST,
-            error="Bad Request",
-            message=message,
+            status=status.HTTP_400_BAD_REQUEST, error="Bad Request", message=message
         ),
         status.HTTP_400_BAD_REQUEST,
-    )
-
-
-@app.errorhandler(NotFound)
-def not_found_error(error):
-    """Handles 404 errors"""
-    message = str(error)
-    app.logger.warning(f"Resource not found: {message}")
-    return (
-        jsonify(
-            status=status.HTTP_404_NOT_FOUND,
-            error="Not Found",
-            message=message,
-        ),
-        status.HTTP_404_NOT_FOUND,
-    )
-
-
-@app.errorhandler(BadRequest)
-def bad_request_error(error):
-    """Handles 400 errors for bad requests"""
-    message = str(error)
-    app.logger.warning(f"Bad request: {message}")
-    return (
-        jsonify(
-            status=status.HTTP_400_BAD_REQUEST,
-            error="Bad Request",
-            message=message,
-        ),
-        status.HTTP_400_BAD_REQUEST,
-    )
-
-
-@app.errorhandler(InternalServerError)
-def internal_server_error(error):
-    """Handles 500 errors for internal server issues"""
-    message = str(error)
-    app.logger.error(f"Internal server error: {message}")
-    return (
-        jsonify(
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            error="Internal Server Error",
-            message="An unexpected internal error occurred. Please try again later.",
-        ),
-        status.HTTP_500_INTERNAL_SERVER_ERROR,
-    )
-
-
-@app.errorhandler(Exception)
-def generic_exception_handler(error):
-    """Handles any uncaught exceptions"""
-    message = str(error)
-    app.logger.error(f"Unhandled exception: {message}")
-    return (
-        jsonify(
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            error="Internal Server Error",
-            message="An unexpected error occurred. Please try again later.",
-        ),
-        status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
