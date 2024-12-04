@@ -10,7 +10,7 @@ Background:
         | Smartphone | Latest model       | 800.00 |
         | Chair      | Office chair       | 150.00 |
         | Table      | Wooden dining table| 300.00 |
-
+# Scenarios for Products team
 Scenario: The server is running
     When I visit the "Home Page"
     Then I should see "Product Demo RESTful Service" in the title
