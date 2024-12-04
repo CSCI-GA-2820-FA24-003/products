@@ -21,6 +21,8 @@ $(function () {
         $("#product_description").val("");
         $("#product_price").val("");
         $("#product_discount").val("");
+        $("#product_min_price").val("");
+        $("#product_max_price").val("");
 
     }
 
@@ -29,100 +31,99 @@ $(function () {
         $("#flash_message").empty();
         $("#flash_message").append(message);
     }
+    // ****************************************
+    // Common function to query products
+    // ****************************************
+    function queryProducts(params = {}) {
+        $("#flash_message").empty();
+        $("#search_results").empty();
 
-// ****************************************
-// Search Products
-// ****************************************
-
-$("#search-btn").click(function () {
-    $("#flash_message").empty();
-
-    let name = $("#product_name").val();
-    let query_string = "";
-    if (name) {
-        query_string = `?name=${encodeURIComponent(name)}`;
-    }
-
-    $("#search_results").empty();
-
-
-    let ajax = $.ajax({
-        type: "GET",
-        url: `api/products${query_string}`,
-        contentType: "application/json",
-    });
-
-    ajax.done(function(res){
-        
-        let table = '<table class="table table-striped">' +
-                    '<thead><tr>' +
-                    '<th class="col-md-1">ID</th>' +
-                    '<th class="col-md-4">Name</th>' +
-                    '<th class="col-md-4">Description</th>' +
-                    '<th class="col-md-3">Price</th>' +
-                    '</tr></thead><tbody>';
-
-        res.forEach(product => {
-            table += `<tr>
-                <td>${product.id}</td>
-                <td>${product.name}</td>
-                <td>${product.description}</td>
-                <td>$${product.price.toFixed(2)}</td>
-            </tr>`;
-        });
-
-        table += '</tbody></table>';
-        
-        $("#search_results").html(table);
-
-        if (res.length === 1) {
-            update_form_data(res[0]);
-        } else if (name && res.length > 0) {
-            clear_form_data();
-            $("#product_name").val(name); 
+        // Build query string
+        let queryParams = [];
+        if (params.name) {
+            queryParams.push(`name=${encodeURIComponent(params.name)}`);
+        }
+        if (params.min_price) {
+            queryParams.push(`min_price=${encodeURIComponent(params.min_price)}`);
+        }
+        if (params.max_price) {
+            queryParams.push(`max_price=${encodeURIComponent(params.max_price)}`);
         }
 
-        $("#flash_message").text("Success");
-    });
-
-    ajax.fail(function(res){
-        clear_form_data();
-        $("#flash_message").text(res.responseJSON?.message || "Error occurred while searching for products!");
-    });
-});
-    // ****************************************
-    // List All Products
-    // ****************************************
-
-    $("#list-btn").click(function () {
-
-        $("#flash_message").empty();
+        let query_string = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+        console.log("Query string:", query_string); // Debug logging
 
         let ajax = $.ajax({
             type: "GET",
-            url: "/api/products",
+            url: `api/products${query_string}`,
             contentType: "application/json",
-            data: '',
         });
 
-        ajax.done(function (res) {
-            $("#search_results").empty();
+        ajax.done(function(res){
+            let table = '<table class="table table-striped">' +
+                        '<thead><tr>' +
+                        '<th class="col-md-1">ID</th>' +
+                        '<th class="col-md-4">Name</th>' +
+                        '<th class="col-md-4">Description</th>' +
+                        '<th class="col-md-3">Price</th>' +
+                        '</tr></thead><tbody>';
+
             res.forEach(product => {
-                let row = `<tr>
+                table += `<tr>
                     <td>${product.id}</td>
                     <td>${product.name}</td>
                     <td>${product.description}</td>
-                    <td>${product.price}</td>
+                    <td>$${product.price.toFixed(2)}</td>
                 </tr>`;
-                $("#search_results").append(row);
             });
-            flash_message("Success");
+
+            table += '</tbody></table>';
+            $("#search_results").html(table);
+
+            // Update form only for search results
+            if (params.updateForm) {
+                if (res.length === 1) {
+                    update_form_data(res[0]);
+                } else if (params.name && res.length > 0) {
+                    clear_form_data();
+                    $("#product_name").val(params.name);
+                }
+            }
+
+            $("#flash_message").text("Success");
         });
 
-        ajax.fail(function (res) {
-            flash_message("Error occurred while listing all products!");
+        ajax.fail(function(res){
+            clear_form_data();
+            $("#flash_message").text(res.responseJSON?.message || "Error occurred while querying products!");
         });
+    }   
 
+    // ****************************************
+    // Search Products by name
+    // ****************************************
+
+    $("#search-btn").click(function () {
+        let params = {
+            name: $("#product_name").val(),
+            min_price: $("#product_min_price").val(),
+            max_price: $("#product_max_price").val(),
+            updateForm: true  // Flag to update form for search results
+        };
+        queryProducts(params);
+    });
+
+    // ****************************************
+    // Query products by max_price and min_price
+    // ****************************************
+
+    $("#list-btn").click(function () {
+        let params = {
+            min_price: $("#product_min_price").val(),
+            max_price: $("#product_max_price").val(),
+            updateForm: false  // Don't update form for list results
+        };
+        queryProducts(params);
     });
         // ****************************************
         // Create a Product
@@ -323,6 +324,6 @@ $("#search-btn").click(function () {
         });
     });
     
-    });
+});
     
 
