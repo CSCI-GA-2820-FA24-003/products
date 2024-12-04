@@ -371,6 +371,9 @@ tests/                     - test cases package
 ├── test_cli_commands.py   - test suite for the CLI
 ├── test_models.py         - test suite for business models
 └── test_routes.py         - test suite for service routes
+
+The operations to test the Products URL are documented in the products.feature file located in the features folder. Additionally, the API documentation can be accessed through the provided URL in the application interface.
+
 ```
 
 ## License
