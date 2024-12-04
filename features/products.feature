@@ -158,3 +158,4 @@ Scenario: Query Products with No Results in Price Range
     And I should not see "Smartphone" in the results
     And I should not see "Chair" in the results
     And I should not see "Table" in the results
+#These features of the products team can be tested in the URL
