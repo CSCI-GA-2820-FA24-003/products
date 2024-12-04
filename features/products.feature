@@ -133,3 +133,28 @@ Scenario: Apply discount to a product
     Then I should see the message "Success"
     And I should see "Laptop" in the results
     And I should see "800.00" in the "Price" field
+
+Scenario: Query Products by Price Range
+    When I visit the "Home Page"
+    And I set the "Min Price" to "100.00"
+    And I set the "Max Price" to "400.00"
+    And I press the "List" button
+    Then I should see the message "Success"
+    And I should see "Chair" in the results
+    And I should see "Table" in the results
+    And I should not see "Laptop" in the results
+    And I should not see "Smartphone" in the results
+    When I press the "Clear" button
+    Then the "Min Price" field should be empty
+    And the "Max Price" field should be empty
+
+Scenario: Query Products with No Results in Price Range
+    When I visit the "Home Page"
+    And I set the "Min Price" to "2000.00"
+    And I set the "Max Price" to "3000.00"
+    And I press the "List" button
+    Then I should see the message "Success"
+    And I should not see "Laptop" in the results
+    And I should not see "Smartphone" in the results
+    And I should not see "Chair" in the results
+    And I should not see "Table" in the results
